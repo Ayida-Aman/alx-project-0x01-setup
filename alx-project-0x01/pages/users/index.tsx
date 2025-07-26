@@ -1,28 +1,56 @@
 import UserCard from "@/components/common/UserCard"
 import Header from "@/components/layout/Header";
-import { UserProps } from "@/interfaces";
+import { UserProps, UserData } from "@/interfaces";
+import { useState } from "react";
+import UserModal from "@/components/common/UserModal";
 
-const Users: React.FC<UserProps[]> = ({ posts }) => {
-  console.log(posts)
+interface UsersPageProps {
+  posts: UserProps[];
+}
+
+const Users: React.FC<UsersPageProps> = ({ posts }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+const [users, setUsers] = useState<UserProps[]>(posts);
+
+  const handleAddUser = (newUser: UserProps) => {
+  setUsers((prev) => [newUser, ...prev]);
+};
+
   return (
     <div className="flex flex-col h-screen">
       <Header />
       <main className="p-4">
-        <div className="flex justify-between">
-        <h1 className=" text-2xl font-semibold">User Content</h1>
-        <button className="bg-blue-700 px-4 py-2 rounded-full text-white">Add Post</button>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-semibold">User Content</h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-700 px-4 py-2 rounded-full text-white hover:bg-blue-800 transition"
+          >
+            Add User
+          </button>
         </div>
-        <div className="grid grid-cols-3 gap-2 ">
-          {
-            posts?.map(({ Address, Welcome, Company, Geo }: UserProps, key: number) => (
-              <UserCard Welcome={Welcome} Address={Address} Company={Company} Geo={Geo} key={key} />
-            ))
-          }
+
+        <div className="grid grid-cols-3 gap-4">
+          {users.map((user) => (
+            <UserCard
+              key={user.id}
+              Welcome={user.name}
+              Address={user.address}
+              Company={user.company}
+              Geo={user.address.geo}
+            />
+          ))}
         </div>
+
+        <UserModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAddUser={handleAddUser}
+        />
       </main>
     </div>
-  )
-}
+  );
+};
 
 
 export async function getStaticProps() {
